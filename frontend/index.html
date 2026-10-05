@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Video Language Converter</title>
+  <meta name="description" content="Translate video dialogue while preserving background music, SFX, and video quality.">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+            <line x1="8" x2="16" y1="22" y2="22"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>YouTube Video Language Converter</h1>
+          <span class="badge">Preserve Music & Sound Effects</span>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="status-pill"><span class="dot"></span> FFmpeg & AI Audio Pipeline</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Input and Configuration Sections -->
+      <div class="control-panel">
+
+        <!-- 1. Video Input Section -->
+        <section class="card section-card" id="section-video-input">
+          <div class="section-header">
+            <span class="section-number">1</span>
+            <h2>Video Input</h2>
+          </div>
+          
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="upload-tab">Upload Video</button>
+            <button class="tab-btn" data-tab="youtube-tab">YouTube URL</button>
+          </div>
+
+          <!-- Upload Video Tab -->
+          <div class="tab-pane active" id="upload-tab">
+            <div class="drop-zone" id="drop-zone">
+              <input type="file" id="video-file-input" accept=".mp4,.mov,.mkv,.avi,.webm" hidden>
+              <div class="drop-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" x2="12" y1="3" y2="15"/>
+                </svg>
+              </div>
+              <p class="drop-title">Drag & drop video file or <span class="highlight">browse</span></p>
+              <p class="drop-sub">Supported formats: MP4, MOV, MKV, AVI, WEBM (Max 1GB)</p>
+            </div>
+          </div>
+
+          <!-- YouTube Tab -->
+          <div class="tab-pane" id="youtube-tab">
+            <div class="youtube-input-group">
+              <div class="input-with-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                  <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+                </svg>
+                <input type="text" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=...">
+              </div>
+              <button class="btn btn-secondary" id="btn-load-youtube">
+                <span class="btn-text">Load Video</span>
+                <span class="loader-sm" id="yt-loader" style="display:none;"></span>
+              </button>
+            </div>
+            <p class="input-hint">Only public videos permitted under applicable terms. DRM bypass is prohibited.</p>
+          </div>
+
+          <!-- Video Metadata Inspector -->
+          <div class="video-meta-box" id="video-meta-box" style="display: none;">
+            <div class="meta-header">
+              <span class="meta-tag">Loaded Video</span>
+              <span class="meta-name" id="meta-filename">-</span>
+            </div>
+            <div class="meta-grid">
+              <div class="meta-item">
+                <span class="label">Duration</span>
+                <span class="val" id="meta-duration">00:00:00</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Resolution</span>
+                <span class="val" id="meta-resolution">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Frame Rate</span>
+                <span class="val" id="meta-fps">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">File Size</span>
+                <span class="val" id="meta-filesize">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Audio Codec</span>
+                <span class="val" id="meta-audio-codec">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Channels / Rate</span>
+                <span class="val" id="meta-channels">-</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Language Conversion Section -->
+        <section class="card section-card" id="section-language">
+          <div class="section-header">
+            <span class="section-number">2</span>
+            <h2>Language Conversion</h2>
+          </div>
+
+          <div class="language-selector-grid">
+            <div class="form-group">
+              <label for="orig-language-select">Original Spoken Language</label>
+              <select id="orig-language-select" class="form-select">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+
+            <div class="swap-container">
+              <button class="btn-swap" id="btn-swap-languages" title="Swap Languages">
+                ⇄ Swap Languages
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label for="target-language-select">Target Language</label>
+              <select id="target-language-select" class="form-select">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+          </div>
+          <div class="form-error-inline" id="language-error" style="display:none;"></div>
+        </section>
+
+        <!-- 3. Video Duration Limit Section -->
+        <section class="card section-card" id="section-duration-limit">
+          <div class="section-header">
+            <span class="section-number">3</span>
+            <h2>Video Duration Limit</h2>
+            <span class="pill-info">Independent Duration Control</span>
+          </div>
+
+          <div class="duration-options">
+            <label class="duration-pill active">
+              <input type="radio" name="duration-limit" value="30">
+              <span>30 sec</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="60">
+              <span>1 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="120">
+              <span>2 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="300">
+              <span>5 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="600" checked>
+              <span>10 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="900">
+              <span>15 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="1800">
+              <span>30 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="3600">
+              <span>60 min</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="custom">
+              <span>Custom</span>
+            </label>
+            <label class="duration-pill">
+              <input type="radio" name="duration-limit" value="0">
+              <span>Process Full Video</span>
+            </label>
+          </div>
+
+          <!-- Custom Time Range Inputs -->
+          <div class="custom-duration-fields" id="custom-duration-fields" style="display: none;">
+            <div class="time-range-group">
+              <div class="time-input-wrap">
+                <label>Start Time (HH:MM:SS)</label>
+                <input type="text" id="custom-start-time" class="form-input" value="00:00:00" placeholder="00:00:00">
+              </div>
+              <span class="time-separator">→</span>
+              <div class="time-input-wrap">
+                <label>End Time (HH:MM:SS)</label>
+                <input type="text" id="custom-end-time" class="form-input" value="00:05:00" placeholder="00:05:00">
+              </div>
+            </div>
+          </div>
+
+          <div class="duration-summary-bar">
+            <span>Selected Maximum Duration:</span>
+            <strong id="display-selected-duration">00:10:00</strong>
+          </div>
+        </section>
+
+        <!-- 4. Audio Preservation Settings -->
+        <section class="card section-card" id="section-audio-settings">
+          <div class="section-header">
+            <span class="section-number">4</span>
+            <h2>Audio Settings</h2>
+          </div>
+
+          <div class="warning-callout">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <p><strong>Audio Preservation Architecture:</strong> Spoken dialogue is isolated and translated. Background music and sound effects are retained in full. <em>Notice: Perfect separation of speech, music, and sound effects is not guaranteed for every video.</em></p>
+          </div>
+
+          <div class="switches-grid">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Preserve Background Music</span>
+                <span class="toggle-desc">Extract and maintain instruments and score underneath dialogue</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-preserve-bg-music" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Preserve Sound Effects</span>
+                <span class="toggle-desc">Keep Foley, ambient room tone, and environmental sounds</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-preserve-sfx" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Replace Spoken Language</span>
+                <span class="toggle-desc">Mute original spoken dialogue track in favor of target translation</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-replace-speech" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Preserve Original Video Frames</span>
+                <span class="toggle-desc">Copy video stream without altering resolution, FPS, or colors</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-preserve-video" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Volume Controls -->
+          <div class="volume-sliders-grid">
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Voice Volume</span>
+                <span class="slider-value" id="val-voice-vol">100%</span>
+              </div>
+              <input type="range" id="slider-voice-vol" min="0" max="200" value="100">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Background Music Volume</span>
+                <span class="slider-value" id="val-bg-vol">100%</span>
+              </div>
+              <input type="range" id="slider-bg-vol" min="0" max="200" value="100">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Sound Effects Volume</span>
+                <span class="slider-value" id="val-sfx-vol">100%</span>
+              </div>
+              <input type="range" id="slider-sfx-vol" min="0" max="200" value="100">
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Voice Settings -->
+        <section class="card section-card" id="section-voice-settings">
+          <div class="section-header">
+            <span class="section-number">5</span>
+            <h2>Target Voice Settings</h2>
+          </div>
+
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Voice Gender</label>
+              <select id="voice-gender-select" class="form-select">
+                <option value="Female" selected>Female</option>
+                <option value="Male">Male</option>
+                <option value="Neutral">Neutral</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Voice Style</label>
+              <select id="voice-style-select" class="form-select">
+                <option value="Natural" selected>Natural</option>
+                <option value="Professional">Professional</option>
+                <option value="Friendly">Friendly</option>
+                <option value="Narrator">Narrator</option>
+                <option value="Energetic">Energetic</option>
+                <option value="Calm">Calm</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Speaking Speed</label>
+              <select id="speaking-speed-select" class="form-select">
+                <option value="0.75">0.75x</option>
+                <option value="1.0" selected>1.0x (Normal)</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Pitch</label>
+              <select id="voice-pitch-select" class="form-select">
+                <option value="Low">Low</option>
+                <option value="Normal" selected>Normal</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Subtitle Settings -->
+        <section class="card section-card" id="section-subtitles">
+          <div class="section-header">
+            <span class="section-number">6</span>
+            <h2>Subtitle Settings</h2>
+          </div>
+
+          <div class="switches-grid">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Generate Original Subtitles</span>
+                <span class="toggle-desc">Export timestamped original language transcription</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-sub-orig" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Generate Target Subtitles</span>
+                <span class="toggle-desc">Export translated SRT & WebVTT subtitle tracks</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-sub-target" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-title">Burn Subtitles Into Video</span>
+                <span class="toggle-desc">Hardcode visible subtitles directly onto video frames</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-burn-subtitles">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-grid" id="burn-sub-options" style="display:none; margin-top: 1rem;">
+            <div class="form-group">
+              <label>Subtitle Position</label>
+              <select id="subtitle-position-select" class="form-select">
+                <option value="Bottom" selected>Bottom</option>
+                <option value="Top">Top</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Subtitle Size</label>
+              <select id="subtitle-size-select" class="form-select">
+                <option value="Small">Small</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Large">Large</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Big Launch Action -->
+        <div class="action-launch-bar">
+          <button class="btn btn-primary btn-large" id="btn-open-summary">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            CREATE TRANSLATED VIDEO
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Status, Preview & Download Section -->
+      <div class="results-panel">
+
+        <!-- 7. Real-Time Processing Status -->
+        <section class="card section-card" id="section-processing" style="display: none;">
+          <div class="section-header">
+            <span class="section-number">7</span>
+            <h2>Processing Video</h2>
+            <span class="badge badge-accent" id="job-status-badge">Processing</span>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-labels">
+              <span class="step-text" id="progress-step-text">Initializing conversion pipeline...</span>
+              <span class="percent-text" id="progress-percent-text">0%</span>
+            </div>
+          </div>
+
+          <!-- 11 Pipeline Stages Timeline -->
+          <div class="pipeline-stages" id="pipeline-stages">
+            <div class="stage-item" data-stage="1"><span class="stage-dot"></span><span>1. Uploading</span></div>
+            <div class="stage-item" data-stage="2"><span class="stage-dot"></span><span>2. Analyzing Video</span></div>
+            <div class="stage-item" data-stage="3"><span class="stage-dot"></span><span>3. Extracting Audio</span></div>
+            <div class="stage-item" data-stage="4"><span class="stage-dot"></span><span>4. Separating Speech</span></div>
+            <div class="stage-item" data-stage="5"><span class="stage-dot"></span><span>5. Transcribing</span></div>
+            <div class="stage-item" data-stage="6"><span class="stage-dot"></span><span>6. Translating</span></div>
+            <div class="stage-item" data-stage="7"><span class="stage-dot"></span><span>7. Generating Voice</span></div>
+            <div class="stage-item" data-stage="8"><span class="stage-dot"></span><span>8. Synchronizing Audio</span></div>
+            <div class="stage-item" data-stage="9"><span class="stage-dot"></span><span>9. Mixing Audio</span></div>
+            <div class="stage-item" data-stage="10"><span class="stage-dot"></span><span>10. Rendering Final Video</span></div>
+            <div class="stage-item" data-stage="11"><span class="stage-dot"></span><span>11. Completed</span></div>
+          </div>
+
+          <div class="status-warning-banner" id="status-warning-banner" style="display:none;"></div>
+          <div class="status-error-banner" id="status-error-banner" style="display:none;"></div>
+        </section>
+
+        <!-- 8. Preview Section -->
+        <section class="card section-card" id="section-preview" style="display: none;">
+          <div class="section-header">
+            <span class="section-number">8</span>
+            <h2>Side-by-Side Preview</h2>
+          </div>
+
+          <div class="preview-players-grid">
+            <div class="player-wrapper">
+              <div class="player-header">Original Video</div>
+              <video id="preview-orig-video" controls class="video-player"></video>
+            </div>
+            <div class="player-wrapper">
+              <div class="player-header">Converted Target Language Video</div>
+              <video id="preview-target-video" controls class="video-player"></video>
+            </div>
+          </div>
+
+          <!-- Audio Track Comparison -->
+          <div class="audio-comparison-box">
+            <h3>Audio Track Comparison</h3>
+            <div class="audio-tracks-grid">
+              <div class="audio-track-item">
+                <span class="audio-label">Original Extracted Audio:</span>
+                <audio id="audio-orig-player" controls class="audio-player"></audio>
+              </div>
+              <div class="audio-track-item">
+                <span class="audio-label">Target Language Mixed Audio (With Preserved Music):</span>
+                <audio id="audio-trans-player" controls class="audio-player"></audio>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dialogue Segments Inspection -->
+          <div class="transcription-viewer" id="transcription-viewer">
+            <h3>Dialogue & Translation Segments</h3>
+            <div class="segments-list" id="segments-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. Download Section -->
+        <section class="card section-card" id="section-download" style="display: none;">
+          <div class="section-header">
+            <span class="section-number">9</span>
+            <h2>Download</h2>
+          </div>
+
+          <div class="download-success-banner">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <div>
+              <h3>Your translated video is ready.</h3>
+              <p>Preserved background music, sound effects, and timing integrated with high-fidelity target audio.</p>
+            </div>
+          </div>
+
+          <div class="download-buttons-grid" id="download-buttons-container">
+            <!-- Populated dynamically with file download links -->
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Pre-Processing Summary Confirmation Modal -->
+  <div class="modal-overlay" id="summary-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Conversion Configuration Summary</h3>
+        <button class="modal-close" id="btn-close-summary">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="summary-table">
+          <div class="sum-row">
+            <span class="sum-label">Video:</span>
+            <strong class="sum-val" id="sum-filename">example.mp4</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Duration:</span>
+            <strong class="sum-val" id="sum-duration">05:32</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Original Language:</span>
+            <strong class="sum-val" id="sum-orig-lang">English</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Target Language:</span>
+            <strong class="sum-val text-accent" id="sum-target-lang">Telugu</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Maximum Duration:</span>
+            <strong class="sum-val" id="sum-max-dur">10 minutes</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Background Music:</span>
+            <strong class="sum-val text-success" id="sum-music">Preserved</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Sound Effects:</span>
+            <strong class="sum-val text-success" id="sum-sfx">Preserved</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Subtitles:</span>
+            <strong class="sum-val" id="sum-subtitles">Enabled</strong>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">Voice:</span>
+            <strong class="sum-val" id="sum-voice">Female / Natural</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-cancel-summary">Cancel</button>
+        <button class="btn btn-primary" id="btn-start-processing">
+          START PROCESSING
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duration Exceeded Warning Modal -->
+  <div class="modal-overlay" id="duration-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="text-warning">Duration Limit Warning</h3>
+        <button class="modal-close" id="btn-close-duration-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text">Video exceeds the selected duration limit.</p>
+        <p class="modal-subtext">The loaded video duration is <strong id="dur-warning-actual">00:15:30</strong>, but your configured limit is <strong id="dur-warning-limit">00:05:00</strong>.</p>
+        <div class="duration-modal-actions">
+          <button class="btn btn-primary btn-block" id="btn-auto-trim">1. Trim video automatically</button>
+          <button class="btn btn-secondary btn-block" id="btn-change-limit">2. Change duration limit</button>
+          <button class="btn btn-outline btn-block" id="btn-process-full">Process Full Video</button>
+          <button class="btn btn-danger btn-block" id="btn-cancel-duration">3. Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

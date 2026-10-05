@@ -1,0 +1,6 @@
+{
+  "name": "YouTube Video Language Converter",
+  "description": "Translate and convert video spoken dialogue into other languages while preserving original background music, sound effects, timing, and video quality.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

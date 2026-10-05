@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: youtube_language_converter
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=YouTube Video Language Converter
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MAX_UPLOAD_SIZE_MB=1024
+      - DEFAULT_MAX_DURATION=600
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./final_videos:/app/final_videos
+      - ./outputs:/app/outputs
+      - ./transcripts:/app/transcripts
+      - ./translations:/app/translations
+      - ./database.sqlite:/app/database.sqlite
+    restart: unless-stopped

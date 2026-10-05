@@ -1,0 +1,14 @@
+[
+  "tests/test_api.py::test_language_validation_identical",
+  "tests/test_api.py::test_languages_endpoint",
+  "tests/test_api.py::test_video_upload_and_inspect",
+  "tests/test_api.py::test_voices_endpoint",
+  "tests/test_pipeline.py::test_1_duration_and_audio_extraction",
+  "tests/test_pipeline.py::test_2_audio_separation_preservation",
+  "tests/test_pipeline.py::test_3_translation_en_to_te",
+  "tests/test_pipeline.py::test_4_tts_speech_generation_and_sync",
+  "tests/test_pipeline.py::test_5_audio_mixing_with_background",
+  "tests/test_pipeline.py::test_6_final_video_muxing_preserves_frames",
+  "tests/test_pipeline.py::test_workflow_1_english_to_telugu_30s",
+  "tests/test_pipeline.py::test_workflow_2_hindi_to_english_120s"
+]
